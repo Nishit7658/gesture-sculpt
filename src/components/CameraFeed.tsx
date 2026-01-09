@@ -146,7 +146,7 @@ export function CameraFeed() {
       {/* Title */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center pointer-events-none">
         <h1 className="font-display text-3xl md:text-4xl text-foreground glow-text tracking-wider">
-          AIR-MODEL 3D
+          GESTURE SCULPT
         </h1>
         <p className="text-muted-foreground text-sm mt-1">Control 3D objects with your hands</p>
       </div>
