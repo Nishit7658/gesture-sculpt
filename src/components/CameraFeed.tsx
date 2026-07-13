@@ -57,16 +57,16 @@ export function CameraFeed() {
 
   if (cameraError) {
     return (
-      <div className="min-h-screen bg-background cyber-grid flex items-center justify-center">
-        <div className="glass rounded-2xl p-8 max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
             <CameraOff className="w-8 h-8 text-destructive" />
           </div>
-          <h2 className="font-display text-xl text-foreground mb-2">Camera Access Required</h2>
-          <p className="text-muted-foreground text-sm mb-4">{cameraError}</p>
+          <h2 className="text-xl font-medium text-foreground mb-3 tracking-tight">Camera Access Required</h2>
+          <p className="text-muted-foreground text-sm mb-6">{cameraError}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-display text-sm hover:bg-primary/90 transition-colors"
+            className="w-full py-2.5 bg-foreground text-background rounded-lg text-sm font-medium hover:bg-foreground/90 transition-colors"
           >
             Try Again
           </button>
@@ -76,33 +76,41 @@ export function CameraFeed() {
   }
 
   return (
-    <div className="min-h-screen bg-background cyber-grid scanline relative overflow-hidden">
+    <div className="min-h-screen bg-mesh relative overflow-hidden">
       {/* 3D Scene Background */}
       <Scene3D gestureState={gestureState} />
 
+      {/* Header / Title */}
+      <div className="absolute top-8 w-full pointer-events-none z-10 flex justify-center">
+        <div className="glass-panel px-6 py-3 rounded-full flex flex-col items-center">
+          <h1 className="text-sm font-semibold tracking-widest uppercase text-foreground/90">
+            Gesture Sculpt Pro
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Spatial Interface Studio</p>
+        </div>
+      </div>
+
       {/* Camera Feed Container */}
-      <div className="absolute top-6 left-6 z-10">
+      <div className="absolute top-8 left-8 z-10">
         <div
           ref={containerRef}
-          className="relative glass rounded-2xl overflow-hidden glow-primary"
-          style={{ width: 320, height: 240 }}
+          className="relative glass-panel rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 hover:shadow-primary/5"
+          style={{ width: 280, height: 210 }}
         >
           {/* Loading Overlay */}
           {(isLoading || !isCameraActive) && (
-            <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-20">
-              <div className="text-center">
-                <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  {!isCameraActive ? 'Starting camera...' : 'Loading hand tracking...'}
-                </p>
-              </div>
+            <div className="absolute inset-0 bg-background/90 flex flex-col items-center justify-center z-20 backdrop-blur-sm">
+              <Loader2 className="w-6 h-6 text-foreground/50 animate-spin mb-3" />
+              <p className="text-xs font-medium text-muted-foreground">
+                {!isCameraActive ? 'Starting camera...' : 'Initializing tracking...'}
+              </p>
             </div>
           )}
 
           {/* Video Feed */}
           <video
             ref={videoRef}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-80 mix-blend-screen"
             style={{ transform: 'scaleX(-1)' }}
             playsInline
             muted
@@ -112,49 +120,53 @@ export function CameraFeed() {
           {isCameraActive && !isLoading && (
             <HandOverlay
               hands={hands}
-              videoWidth={320}
-              videoHeight={240}
+              videoWidth={280}
+              videoHeight={210}
             />
           )}
 
-          {/* Camera Status Badge */}
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 glass px-3 py-1.5 rounded-full">
-            <div className={`w-2 h-2 rounded-full ${isCameraActive && !isLoading ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
-            <span className="text-xs text-foreground font-medium">
-              {isCameraActive && !isLoading ? 'Live' : 'Initializing'}
-            </span>
-          </div>
-
-          {/* Hand Count Badge */}
-          {isCameraActive && !isLoading && gestureState.handsDetected > 0 && (
-            <div className="absolute top-3 right-3 glass px-3 py-1.5 rounded-full flex items-center gap-2">
-              <Camera className="w-3 h-3 text-primary" />
-              <span className="text-xs text-foreground font-display">
-                {gestureState.handsDetected} {gestureState.handsDetected === 1 ? 'Hand' : 'Hands'}
-              </span>
+          {/* Status Indicators overlaid on video */}
+          <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3">
+            <div className="flex justify-end">
+              {isCameraActive && !isLoading && gestureState.handsDetected > 0 && (
+                <div className="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-md flex items-center gap-1.5 border border-white/10">
+                  <Camera className="w-3 h-3 text-white/70" />
+                  <span className="text-[10px] font-medium text-white/90 uppercase tracking-wider">
+                    {gestureState.handsDetected} {gestureState.handsDetected === 1 ? 'Hand' : 'Hands'}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+            
+            <div className="flex justify-start">
+              <div className="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-md flex items-center gap-2 border border-white/10">
+                <div className={`w-1.5 h-1.5 rounded-full ${isCameraActive && !isLoading ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                <span className="text-[10px] font-medium text-white/90 uppercase tracking-wider">
+                  {isCameraActive && !isLoading ? 'Tracking Live' : 'Standby'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Instructions Panel */}
-      <InstructionsPanel />
+      <div className="absolute bottom-8 right-8 z-10">
+        <InstructionsPanel />
+      </div>
 
       {/* Gesture Indicators */}
-      <GestureIndicator gestureState={gestureState} />
-
-      {/* Title */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-        <h1 className="font-display text-3xl md:text-4xl text-foreground glow-text tracking-wider">
-          GESTURE SCULPT
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">Control 3D objects with your hands</p>
+      <div className="absolute bottom-8 left-8 z-10">
+        <GestureIndicator gestureState={gestureState} />
       </div>
 
       {/* Error Toast */}
       {trackingError && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 glass px-4 py-2 rounded-lg border border-destructive/50">
-          <p className="text-sm text-destructive">{trackingError}</p>
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50">
+          <div className="glass-panel bg-destructive/10 border-destructive/20 px-4 py-2.5 rounded-lg flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse" />
+            <p className="text-xs font-medium text-destructive-foreground">{trackingError}</p>
+          </div>
         </div>
       )}
     </div>
